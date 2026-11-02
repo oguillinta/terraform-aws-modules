@@ -1,9 +1,11 @@
+
 apiVersion: platform.example/v1
 kind: ModuleCatalog
+
 modules:
   - id: aws.s3
     name: Secure S3 bucket
-    source: aldo2510/terraform-aws-modules//modules/s3
+    source: oguillinta/terraform-aws-modules//modules/s3
     version: main
     description: Private S3 bucket with public access blocked, encryption at rest, ownership controls, and versioning enabled by default.
     required:
@@ -19,6 +21,69 @@ modules:
       public_access: blocked
       encryption: AES256
       versioning_default: enabled
+    allowed_environments:
+      - dev
+      - test
+      - staging
+      - prod
+
+  - id: aws.sqs
+    name: Standard SQS queue
+    source: oguillinta/terraform-aws-modules//modules/sqs
+    version: main
+    description: Standard SQS queue with SQS-managed encryption at rest and configurable messaging settings.
+    required:
+      - queue_name
+    optional:
+      delay_seconds:
+        type: number
+        default: 0
+      max_message_size:
+        type: number
+        default: 262144
+      message_retention_seconds:
+        type: number
+        default: 345600
+      receive_wait_time_seconds:
+        type: number
+        default: 0
+      visibility_timeout_seconds:
+        type: number
+        default: 30
+      tags:
+        type: map(string)
+        default: {}
+    security:
+      encryption: SQS_MANAGED
+      queue_type: standard
+    allowed_environments:
+      - dev
+      - test
+      - staging
+      - prod
+
+  - id: aws.dynamodb
+    name: DynamoDB on-demand table
+    source: oguillinta/terraform-aws-modules//modules/dynamodb
+    version: main
+    description: DynamoDB table with on-demand capacity, a single partition key, encryption at rest, and optional point-in-time recovery.
+    required:
+      - table_name
+      - hash_key
+    optional:
+      hash_key_type:
+        type: string
+        default: S
+      point_in_time_recovery_enabled:
+        type: boolean
+        default: false
+      tags:
+        type: map(string)
+        default: {}
+    security:
+      encryption: AWS_MANAGED
+      billing_mode: PAY_PER_REQUEST
+      point_in_time_recovery_default: disabled
     allowed_environments:
       - dev
       - test
